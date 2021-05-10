@@ -13,10 +13,19 @@ app = Flask(__name__)
 
 #create homepage route
 @app.route('/')
-
+def home():
+    return (
+        f'Welcome to the Hawaii Rainfall and Temperature API!<br/>'
+        f'Available Routes:<br/>'
+        f'/api/v1.0/precipitation<br/>'
+        f'/api/v1.0/stations<br/>'
+        f'/api/v1.0/tobs'
+        f'//api/v1.0/<start>'
+        f'/api/v1.0/<start>/<end>'
+    )
 
 #create precipitaion route
-@app.route('api/v1.0/precipitation')
+@app.route('/api/v1.0/precipitation')
 
 
 #create stations route
