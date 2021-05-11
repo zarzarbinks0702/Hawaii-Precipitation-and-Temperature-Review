@@ -37,6 +37,13 @@ def precipitation():
 
 #create stations route
 @app.route('/api/v1.0/stations')
+def stations():
+    stations = []
+    
+    for row in stations_csv:
+        stations.append(row[1])
+        
+    return jsonify(stations)
 
 
 #create tobs route
@@ -49,3 +56,8 @@ def precipitation():
 
 #create start/end route
 @app.route('/api/v1.0/<start>/<end>')
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
