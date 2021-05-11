@@ -3,10 +3,10 @@ from flask import Flask, jsonify
 
 #import the csv files for precipitation and stations
 import csv
-with open('Resources/hawaii_measurements.csv') as csv_file:
-  precipitation = csv.reader(csv_file, delimiter=',')
-with open('Resources/hawaii_stations.csv') as csv_file:
-  stations = csv.reader(csv_file, delimiter=',')
+with open('Resources/hawaii_measurements.csv') as csv_file_1:
+  precipitation_csv = csv.reader(csv_file_1, delimiter=',')
+with open('Resources/hawaii_stations.csv') as csv_file_2:
+  stations_csv = csv.reader(csv_file_2, delimiter=',')
 
 #flask setup
 app = Flask(__name__)
@@ -29,7 +29,7 @@ def home():
 def precipitation():
     prcp_dict = {}
     
-    for row in precipitation:
+    for row in precipitation_csv:
         prcp_dict[row[1]] = row[2]
         
     return jsonify(prcp_dict)
