@@ -26,7 +26,14 @@ def home():
 
 #create precipitaion route
 @app.route('/api/v1.0/precipitation')
-
+def precipitation():
+    prcp_dict = {}
+    
+    for row in precipitation:
+        prcp_dict[row[1]] = row[2]
+        
+    return jsonify(prcp_dict)
+        
 
 #create stations route
 @app.route('/api/v1.0/stations')
