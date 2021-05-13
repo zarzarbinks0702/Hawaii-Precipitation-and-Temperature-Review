@@ -42,7 +42,7 @@ def home():
         f'To see temperature observations in degrees F for the Waihee station:<br/>'
         f'/api/v1.0/tobs<br/><br/>'
         f'To see minimum, maximum, and average temperatures since a certain date (in year-month-date format) in degrees F for all stations:<br/>'
-        f'/api/v1.0/start_date<br/>'
+        f'/api/v1.0/start_date<br/><br/>'
         f'To see minimum, maximum, and average temperatures in a certain date range (in year-month-date format) in degrees F for all stations:<br/>'
         f'/api/v1.0/start_date/end_date<br/>'
     )
