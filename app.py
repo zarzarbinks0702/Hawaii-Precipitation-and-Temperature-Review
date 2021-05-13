@@ -41,8 +41,10 @@ def home():
         f'/api/v1.0/stations<br/><br/>'
         f'To see temperature observations in degrees F for the Waihee station:<br/>'
         f'/api/v1.0/tobs<br/><br/>'
-        f'/api/v1.0/<start><br/>'
-        f'/api/v1.0/<start>/<end><br/>'
+        f'To see minimum, maximum, and average temperatures since a certain date (in year-month-date format) in degrees F for all stations:<br/>'
+        f'/api/v1.0/start_date<br/>'
+        f'To see minimum, maximum, and average temperatures in a certain date range (in year-month-date format) in degrees F for all stations:<br/>'
+        f'/api/v1.0/start_date/end_date<br/>'
     )
 
 #create precipitaion route
@@ -100,12 +102,76 @@ def tobs():
     return jsonify(tobs_data)
 
 #create start route
-#@app.route('/api/v1.0/<start>')
-   #def
+@app.route('/api/v1.0/<start>')
+def min_max_avg(start):
+    #format the input
+    formatted_start_date = dt.datetime.strptime(start, '%Y-%m-%d')
+    
+    #create session for the precipitation data
+    session=Session(engine)
+    
+    #calculating minimum temp since start date
+    tmin = session.query(Station. name, func.min(Measurement.tobs)).\
+        select_from(Measurement).\
+        join(Station, Measurement.station == Station.station).\
+        group_by(Measurement.station).\
+        filter(Measurement.date >= formatted_start_date).all()
+    
+    #calculating maximum temp since start date
+    tmax = session.query(Station. name, func.max(Measurement.tobs)).\
+        select_from(Measurement).\
+        join(Station, Measurement.station == Station.station).\
+        group_by(Measurement.station).\
+        filter(Measurement.date >= formatted_start_date).all()
+    
+    #calculating average temp since start date
+    tavg = session.query(Station. name, func.avg(Measurement.tobs)).\
+        select_from(Measurement).\
+        join(Station, Measurement.station == Station.station).\
+        group_by(Measurement.station).\
+        filter(Measurement.date >= formatted_start_date).all()
+    
+    session.close()
+    
+    return f'For dates since {start}: <br/><br/> Min Temp: {tmin} <br/><br/> Max Temp: {tmax} <br/><br/> Average Temp: {tavg}'
 
 #create start/end route
-#@app.route('/api/v1.0/<start>/<end>')
-
+@app.route('/api/v1.0/<start>/<end>')
+def min_max_avg_range(start, end):
+    #format the inputs
+    formatted_start_date = dt.datetime.strptime(start, '%Y-%m-%d')
+    formatted_end_date = dt.datetime.strptime(end, '%Y-%m-%d')
+    
+    #create session for the precipitation data
+    session=Session(engine)
+    
+    #calculating minimum temp since start date
+    tmin = session.query(Station. name, func.min(Measurement.tobs)).\
+        select_from(Measurement).\
+        join(Station, Measurement.station == Station.station).\
+        group_by(Measurement.station).\
+        filter(Measurement.date <= formatted_end_date).\
+        filter(Measurement.date >= formatted_start_date).all()
+    
+    #calculating maximum temp since start date
+    tmax = session.query(Station. name, func.max(Measurement.tobs)).\
+        select_from(Measurement).\
+        join(Station, Measurement.station == Station.station).\
+        group_by(Measurement.station).\
+        filter(Measurement.date <= formatted_end_date).\
+        filter(Measurement.date >= formatted_start_date).all()
+    
+    #calculating average temp since start date
+    tavg = session.query(Station. name, func.avg(Measurement.tobs)).\
+        select_from(Measurement).\
+        join(Station, Measurement.station == Station.station).\
+        group_by(Measurement.station).\
+        filter(Measurement.date <= formatted_end_date).\
+        filter(Measurement.date >= formatted_start_date).all()
+    
+    session.close()
+    
+    return f'For dates in the range of {start} to {end}: <br/><br/> Min Temp: {tmin} <br/><br/> Max Temp: {tmax} <br/><br/> Average Temp: {tavg}'
 
 
 if __name__ == '__main__':
