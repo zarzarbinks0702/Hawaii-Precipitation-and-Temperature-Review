@@ -1,19 +1,30 @@
-#import flask dependencies
-from flask import Flask, jsonify
-import csv
+#import dependencies
 import datetime as dt
-import pandas as pd
 
-#create the precipitation df
-precipitation_csv = 'Resources/hawaii_measurements.csv'
-precipitation_df = pd.read_csv(precipitation_csv, encoding='ISO-8859-1')
+import sqlalchemy
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine, func
 
-#create the stations df
-stations_csv = 'Resources/hawaii_stations.csv'
-stations_df = pd.read_csv(stations_csv, encoding='ISO-8859-1')
+from flask import Flask, jsonify
 
-#create the merged df
-merged_df = pd.merge(precipitation_df, stations_df, on='station', how='outer')
+#############################################
+
+#setup database
+engine = create_engine('sqlite:///Resources/hawaii.sqlite')
+
+# reflect database
+Base = automap_base()
+# reflect the tables
+Base.prepare(engine, reflect=True)
+
+#save reference to measurement class
+Measurement = Base.classes.measurement
+
+#save reference to station class
+Station = Base.classes.station
+
+#############################################
 
 #flask setup
 app = Flask(__name__)
@@ -37,13 +48,16 @@ def home():
 #create precipitaion route
 @app.route('/api/v1.0/precipitation')
 def precipitation():
-    #create dictionary for the precipitation data
-    prcp_dict = {}
+    #create session for the precipitation data
+    session=Session(engine)
 
-    #pull precipitation data into the dictionary
-    for index, row in precipitation_df.iterrows():
-        prcp_dict[row['date']] = row['prcp']
-
+    #pull precipitation data from session
+    prcp_readings = session.query(Measurement.date, Measurement.prcp)
+    session.close()
+    
+    #convert into a dictionary
+    prcp_dict = dict(prcp_readings)
+    
     #jsonify and return
     return jsonify(prcp_dict)
     
@@ -51,13 +65,16 @@ def precipitation():
 #create stations route
 @app.route('/api/v1.0/stations')
 def stations():
-    #create list for the station names
-    stations = []
+    #create session for the station data
+    session=Session(engine)
 
-    #pull station names into the list
-    for index, row in stations_df.iterrows():
-        stations.append(row['name'])
-
+    #pull station names from session
+    station_names = session.query(Station.name)
+    session.close()
+    
+    #convert to a list
+    stations = list(station_names)
+    
     #jsonify and return
     return jsonify(stations)
 
@@ -65,29 +82,26 @@ def stations():
 #create tobs route
 @app.route('/api/v1.0/tobs')
 def tobs():
-    #get the date one year ago
-    one_year_ago = pd.to_datetime(dt.date(2017, 8, 23) - dt.timedelta(days=365))
+    #create session for the precipitation data
+    session=Session(engine)
     
-    #create a separate tobs df
-    tobs_df = merged_df[['date', 'tobs', 'name']]
-    #pull the last 12 months of data from the tobs df
-    last_12_months_tobs_df = tobs_df.loc[(pd.to_datetime(tobs_df['date'], format='%Y-%m-%d')) > one_year_ago]
-    #pull just the waihee station data from the last 12 months of tobs data
-    waihee_12mo_tobs_df = last_12_months_tobs_df.groupby('name').get_group('WAIHEE 837.5, HI US')
+    #get the date for the last year
+    one_year_ago = dt.date(2017, 8, 23) - dt.timedelta(days=365)
     
-    #create dictionary for the tobs data
-    tobs_data = {}
-    
-    #pull tobs data into the dictionary
-    for index, row in waihee_12mo_tobs_df.iterrows():
-        tobs_data[row['date']] = row['tobs']
+    #pull the dates and temp observations from the waihee (most active) station for the past year
+    tobs_data = session.query(Measurement.date, Measurement.tobs).\
+                select_from(Measurement).\
+                join(Station, Measurement.station == Station.station).\
+                filter(Station.id == 7).\
+                filter(Measurement.date > one_year_ago).all()
+    session.close()
        
     #jsonify and return
     return jsonify(tobs_data)
 
 #create start route
 #@app.route('/api/v1.0/<start>')
-
+   #def
 
 #create start/end route
 #@app.route('/api/v1.0/<start>/<end>')
