@@ -116,6 +116,8 @@ def min_max_avg(start):
         join(Station, Measurement.station == Station.station).\
         group_by(Measurement.station).\
         filter(Measurement.date >= formatted_start_date).all()
+    #converting to dictionary
+    tmin_dict = dict(tmin)
     
     #calculating maximum temp since start date
     tmax = session.query(Station. name, func.max(Measurement.tobs)).\
@@ -123,6 +125,8 @@ def min_max_avg(start):
         join(Station, Measurement.station == Station.station).\
         group_by(Measurement.station).\
         filter(Measurement.date >= formatted_start_date).all()
+    #converting to dictionary
+    tmax_dict = dict(tmax)
     
     #calculating average temp since start date
     tavg = session.query(Station. name, func.avg(Measurement.tobs)).\
@@ -130,10 +134,12 @@ def min_max_avg(start):
         join(Station, Measurement.station == Station.station).\
         group_by(Measurement.station).\
         filter(Measurement.date >= formatted_start_date).all()
+    #converting to dictionary
+    tavg_dict = dict(tavg)
     
     session.close()
     
-    return f'For dates since {start}: <br/><br/> Min Temp: {tmin} <br/><br/> Max Temp: {tmax} <br/><br/> Average Temp: {tavg}'
+    return jsonify(f'For dates since {start} - Min Temp: {tmin_dict} Max Temp: {tmax_dict} Average Temp: {tavg_dict}')
 
 #create start/end route
 @app.route('/api/v1.0/<start>/<end>')
@@ -152,6 +158,8 @@ def min_max_avg_range(start, end):
         group_by(Measurement.station).\
         filter(Measurement.date <= formatted_end_date).\
         filter(Measurement.date >= formatted_start_date).all()
+    #converting to dictionary
+    tmin_dict = dict(tmin)
     
     #calculating maximum temp since start date
     tmax = session.query(Station. name, func.max(Measurement.tobs)).\
@@ -160,6 +168,8 @@ def min_max_avg_range(start, end):
         group_by(Measurement.station).\
         filter(Measurement.date <= formatted_end_date).\
         filter(Measurement.date >= formatted_start_date).all()
+    #converting to dictionary
+    tmax_dict = dict(tmax)
     
     #calculating average temp since start date
     tavg = session.query(Station. name, func.avg(Measurement.tobs)).\
@@ -168,10 +178,12 @@ def min_max_avg_range(start, end):
         group_by(Measurement.station).\
         filter(Measurement.date <= formatted_end_date).\
         filter(Measurement.date >= formatted_start_date).all()
+    #converting to dictionary
+    tavg_dict = dict(tavg)
     
     session.close()
     
-    return f'For dates in the range of {start} to {end}: <br/><br/> Min Temp: {tmin} <br/><br/> Max Temp: {tmax} <br/><br/> Average Temp: {tavg}'
+    return jsonify(f'For dates in range {start} to {end} - Min Temp: {tmin_dict} Max Temp: {tmax_dict} Average Temp: {tavg_dict}')
 
 
 if __name__ == '__main__':
