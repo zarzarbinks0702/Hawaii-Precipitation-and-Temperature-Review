@@ -15,3 +15,11 @@ Created a flask app with routes to show precipitaion data, station names, temper
 
 -----------------------------------------------------------------------------------------------------------------------
 
+Ran extra analysis to see if there was a meaningful difference between the temperature in June and December for Hawaii.
+Ran an analysis on rainfall and temperatures in August for an August vacation.
+Plotted temperature on a bar chart.
+Plotted daily normals for the trip range in an area plot.
+
+-----------------------------------------------------------------------------------------------------------------------
+
+Runs in jupyter notebook and on a localhost server where Flask is installed.
