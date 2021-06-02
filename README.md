@@ -1,4 +1,4 @@
-# sqlalchemy-challenge
+# Hawaii Precipitation and Temperature Review
 
 SQLAlchemy project with Flask for class - Uses Python, Pandas, Jupyter Notebook, SQLAlchemy, Flask, and DateTime. 05/15/2021
 
